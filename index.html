@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+</head>
+<body>
+  <style>
+    html{
+      margin:0;
+      padding:0;
+      line-height:0;
+      
+    }
+    button{
+      text-align: center;
+      margin-left:auto;
+    margin-right:auto;
+    width:100px;
+    }
+    div div {
+      width:10px;
+      height:10px;
+      background-color:blue;
+      margin:0;
+      padding:0;
+      color:black;
+    }
+    .lab{
+      background-color:white;
+      display:inline-block;
+      color:green;
+      
+    }
+    #container{
+      width:800px;
+      height:450px;
+      margin-left:auto;
+    margin-right:auto;
+      
+    }
+  </style>
+<div id = 'container'>
+   
+  
+  
+</div>
+<button><a href="index.html">Reload</a></button>
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script>
+  (function($){
+    var $container= $('#container');
+    var width = 80;
+    var height = 45;
+    
+      for(let j =0;j<height;j++)
+      for (let i =0 ;i<width;i++){
+       
+        $container.append($(`<div class='lab _i_${i}_j_${j}_' steps='10000' visited='false' isRoad='false' isBlock='false' isShortestRoad='false'></div>`));
+    
+          
+      }
+     function rand(nr){
+       return Math.floor(Math.random()*nr);
+     }
+    
+    var finish = { i: rand(width) , j:rand(height)};
+    var nr_pasi = rand(width*height*4);
+    
+    $(`._i_${finish.i}_j_${finish.j}_`).attr('style','background-color:blue').attr('isRoad','true');
+    var x_coord = finish.i;
+    var y_coord = finish.j;
+
+    var dirArr = [false,false,false,false];
+    
+    if(x_coord-1>=0) dirArr[3]=true;
+    if(x_coord+1<width)dirArr[1]=true;
+    if(y_coord+1<height)dirArr[2]=true;
+    if(y_coord-1>=0)dirArr[0]=true;
+    var index;
+    while(nr_pasi>=0){
+      
+      while(!dirArr[index=rand(4)]);
+      
+      switch(index){
+        case 0: --y_coord;$(`._i_${x_coord}_j_${y_coord}_`).attr('style','background-color:white').attr('isRoad','true');break;
+        case 1: ++x_coord;$(`._i_${x_coord}_j_${y_coord}_`).attr('style','background-color:white').attr('isRoad','true');break;
+        case 2: ++y_coord;$(`._i_${x_coord}_j_${y_coord}_`).attr('style','background-color:white').attr('isRoad','true');break;
+        case 3: --x_coord;$(`._i_${x_coord}_j_${y_coord}_`).attr('style','background-color:white').attr('isRoad','true');break;
+      }
+      if(x_coord-1>=0) dirArr[3]=true; else dirArr[3]=false;
+    if(x_coord+1<width)dirArr[1]=true; else dirArr[1]=false;
+    if(y_coord+1<height)dirArr[2]=true; else dirArr[2]=false;
+    if(y_coord-1>=0)dirArr[0]=true; else dirArr[0]=false;
+      nr_pasi--;
+    }
+    var start = { i : x_coord , j : y_coord};
+    
+    $(`._i_${start.i}_j_${start.j}_`).attr('style','background-color:purple').attr('steps','0').attr('visited','true');
+    $(`._i_${finish.i}_j_${finish.j}_`).attr('style','background-color:blue');
+    for(let j =0;j<height;j++)
+      for (let i =0 ;i<width;i++){
+       if ($(`._i_${i}_j_${j}_`).attr('isRoad')=='false'){
+         if(Math.random()<.33){
+           $(`._i_${i}_j_${j}_`).attr('isBlock','true').attr('style','background-color:black');
+         }
+       }
+        }
+    var que = [start];
+    var cap = 0;
+    var frame = 55;
+    var tics = 75;
+    outside: while(true){
+        let i = cap;
+        cap = que.length;
+        
+        for(;i<cap;i++){
+          
+          
+
+          if(que[i].j-1>=0 && $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('isBlock')=='false' && $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('visited')=='false'){
+            que.push({i:que[i].i , j:que[i].j-1});
+            if(que[i].i == finish.i && que[i].j-1 == finish.j) break outside;
+           if( $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+            $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('visited','true');
+            let ref =  $(`._i_${que[i].i}_j_${que[i].j-1}_`);
+            setTimeout(() => {
+              ref=$('.'+$(ref).attr('class').slice(4));
+              if(ref.attr('isBlock')=='false')
+              ref.attr('style','background-color:green');
+            }, frame * tics);
+          }
+          if(que[i].i+1<width && $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('isBlock')=='false' && $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('visited')=='false'){
+            que.push({i:que[i].i+1 , j:que[i].j});
+            if(que[i].i+1 == finish.i && que[i].j == finish.j) break outside;
+            if( $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+            let ref = $(`._i_${que[i].i+1}_j_${que[i].j}_`);
+            $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('visited','true');
+
+            setTimeout(() => {
+              ref=$('.'+$(ref).attr('class').slice(4));
+              if(ref.attr('isBlock')=='false')
+              ref.attr('style','background-color:green');
+            }, frame * tics);
+          }
+          if(que[i].j+1<height && $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('isBlock')=='false' && $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('visited')=='false'){
+            que.push({i:que[i].i , j:que[i].j+1});
+            if(que[i].i == finish.i && que[i].j+1 == finish.j) break outside;
+            if( $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+            let ref = $(`._i_${que[i].i}_j_${que[i].j+1}_`);
+            $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('visited','true');
+            setTimeout(() => {
+              ref=$('.'+$(ref).attr('class').slice(4));
+              if(ref.attr('isBlock')=='false')
+              ref.attr('style','background-color:green');
+            }, frame * tics);
+          }
+          if(que[i].i-1>=0 && $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('isBlock')=='false' && $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('visited')=='false'){
+            que.push({i:que[i].i-1 , j:que[i].j});
+            if(que[i].i-1 == finish.i && que[i].j == finish.j) break outside;
+            if( $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+            let ref = $(`._i_${que[i].i-1}_j_${que[i].j}_`);
+            $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('visited','true');
+            setTimeout(() => {
+              ref=$('.'+$(ref).attr('class').slice(4));
+              if(ref.attr('isBlock')=='false')
+              ref.attr('style','background-color:green');
+            }, frame * tics);
+          }
+        }
+        if(que[i].j-1>=0 && $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('isBlock')=='false' && $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('visited')=='true'){
+          if( $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i}_j_${que[i].j-1}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+        }
+
+        if(que[i].i+1<width && $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('isBlock')=='false' && $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('visited')=='false'){
+          if( $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i+1}_j_${que[i].j}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+        }
+        if(que[i].j+1<height && $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('isBlock')=='false' && $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('visited')=='false'){
+          if( $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i}_j_${que[i].j+1}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+        }
+        if(que[i].i-1>=0 && $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('isBlock')=='false' && $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('visited')=='false'){
+          if( $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('steps')>((+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1))
+            $(`._i_${que[i].i-1}_j_${que[i].j}_`).attr('steps',(+$(`._i_${que[i].i}_j_${que[i].j}_`).attr('steps'))+1+'');
+        }
+       frame++;
+      
+    }
+
+function paintRoad(obj){
+  if(obj.i == start.i && obj.j==start.j) return;
+  var $obj = $(`._i_${obj.i}_j_${obj.j}_`);
+  var min = +$obj.attr('steps');
+  var nextNode=null;
+  var animNode=null;
+  if(obj.j-1>=0 && +$(`._i_${obj.i}_j_${obj.j-1}_`).attr('steps')<min) {
+    min = +$(`._i_${obj.i}_j_${obj.j-1}_`).attr('steps');
+    animNode=$(`._i_${obj.i}_j_${obj.j-1}_`);
+    nextNode={i:obj.i , j:obj.j-1};
+    }
+  if(obj.j+1<height && +$(`._i_${obj.i}_j_${obj.j+1}_`).attr('steps')<min) {min = +$(`._i_${obj.i}_j_${obj.j+1}_`).attr('steps');
+  animNode=$(`._i_${obj.i}_j_${obj.j+1}_`);
+    nextNode={i:obj.i , j:obj.j+1};
+  }
+  if(obj.i-1>=0 && +$(`._i_${obj.i-1}_j_${obj.j}_`).attr('steps')<min) {min=+$(`._i_${obj.i-1}_j_${obj.j}_`).attr('steps');
+  animNode=$(`._i_${obj.i-1}_j_${obj.j}_`);
+    nextNode={i:obj.i-1 , j:obj.j};
+  }
+  if(obj.i+1<width && +$(`._i_${obj.i+1}_j_${obj.j}_`).attr('steps')<min){min=+$(`._i_${obj.i+1}_j_${obj.j}_`).attr('steps');
+  animNode=$(`._i_${obj.i+1}_j_${obj.j}_`);
+    nextNode={i:obj.i+1 , j:obj.j};
+  }
+  animNode.attr('isShortestRoad',true);
+ 
+ paintRoad(nextNode);
+    setTimeout(()=>{
+      animNode.attr('style','background-color:red');
+    },frame*tics);
+  
+    frame++;
+}
+
+    $(`._i_${start.i}_j_${start.j}_`).attr('style','background-color:purple').attr('steps','0');
+    $(`._i_${finish.i}_j_${finish.j}_`).attr('style','background-color:blue');
+     
+      paintRoad(finish);
+      for(let j =0;j<height;j++)
+      for (let i =0 ;i<width;i++){
+       
+        var ref = $(`._i_${i}_j_${j}_`);
+        
+        
+        if(ref.attr('isRoad')=='true' && ref.attr('isShortestRoad')=='false')
+          if(Math.random()<.32)
+          {ref.attr('isBlock','true');
+            ref.attr('style','background-color:black');
+          }
+      }
+      
+      $(`._i_${finish.i}_j_${finish.j}_`).attr('style','background-color:blue');
+      $(`._i_${start.i}_j_${start.j}_`).attr('style','background-color:purple').attr('steps','0');
+     })(jQuery);
+  $('#container').bind('click',function(e){
+    console.log($(e.target).attr('steps')+ '' + $(e.target).attr('class'));
+  });
+  </script>
+  
+</body>
+</html>
